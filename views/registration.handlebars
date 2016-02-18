@@ -1,22 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="https://bootswatch.com/cerulean/bootstrap.min.css">
-  <title>Login</title>
-</head>
-<body>
+
   <div class="container">
     <div class="row">
       <div class="col-md-2"></div>
       <div class="col-md-8">
-        <h2>Login</h2>
+        <h2>Registration Form</h2>
       </div>
     </div>
     <div class="row">
       <div class="col-md-2"></div>
       <div class="col-md-8">
-        <form method="POST" action="/login">
+        <form method="POST" action="/register">
           <div class="form-group">
             <label for="firstname">First Name</label>
             <input type="text" class="form-control" id="firstname" placeholder="First name" name="firstname">
@@ -38,7 +31,12 @@
       </div>
       <div class="col-md-2"></div>
     </div>
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-10">
+        <a href="/login"><h3>Login</h3></a>
+      </div>
+    </div>
+    {{ msg }}
   </div>
-</body>
-</html>
 
