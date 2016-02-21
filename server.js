@@ -23,7 +23,7 @@ app.use(session({
   resave: false
 }));
 
-
+//the Student model
 var Student = sequelize.define('Student', {
   firstname: {
     type: Sequelize.STRING,
@@ -64,6 +64,7 @@ var Student = sequelize.define('Student', {
   }
 });
 
+//the Instructor model
 var Instructor = sequelize.define('Instructor', {
   firstname: {
     type: Sequelize.STRING,
@@ -89,23 +90,31 @@ var Instructor = sequelize.define('Instructor', {
   },
   email: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
     unique: true
   },
   password: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
     validate: {
       len: {
-        args: [1, 10],
+        args: [0, 10],
         msg: "Please enter a password between 1 and 10 characters"
       }
     }
+  },
+  teacher: {
+    type: Sequelize.BOOLEAN,
+    allowNull: true
   }
 });
 
+//one to many relationship for the instructor to students
+Instructor.hasMany(Student);
+
+
 app.get('/', function (req, res) {
-    res.render('registration', {
+    res.render('register', {
       msg: req.query.msg
     });
 });
@@ -117,7 +126,7 @@ app.get('/login', function (req, res) {
 });
 
 app.get('/register', function (req, res) {
-    res.render('registration', {
+    res.render('register', {
       msg: req.query.msg
     });
 });
@@ -125,7 +134,7 @@ app.get('/register', function (req, res) {
 app.get('/students', function (req, res) {
     Student.findAll({
     // include: [{
-    //   model: AlterEgo
+    //   model: Instructor
     //   }]
     }).then(function(student) {
       res.render('students' , {
@@ -134,12 +143,12 @@ app.get('/students', function (req, res) {
     });
 });
 
-app.get('/instructor', function (req, res) {
+app.get('/instructors', function (req, res) {
     Instructor.findAll({
-    // include: [{
-    //   model: AlterEgo
-    //   }]
-    }).then(function(student) {
+    include: [{
+      model: Student
+      }]
+    }).then(function(instructor) {
       res.render('instructors' , {
         instructor: instructor
       })
@@ -173,6 +182,26 @@ app.post('/login', function(req, res) {
     }
   }).catch(function(err) {
     throw err;
+  });
+});
+
+app.post('/createinstructors', function(req, res) {
+  Instructor.create({
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
+    teacher: true
+  }).then(function() {
+    res.redirect('/instructors');
+  });
+});
+
+app.post('/createta', function(req, res) {
+  Instructor.create({
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
+    teacher:  false
+  }).then(function() {
+    res.redirect('/instructors');
   });
 });
 

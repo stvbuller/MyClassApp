@@ -6,12 +6,23 @@
       <div>
         <h3>{{firstname}} {{lastname}}</h3>
         <!-- <ul>
-          {{#each AlterEgos}}
-            <li>{{ superhero }}</li>
-          {{/each}}
+          <li>
+            <form method="POST" action="/addinstructors">
+              <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Instructor's first name" name="firstname">
+              <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Instructor's last name" name="lastname">
+              <button type="submit" class="btn btn-default">Add Instructor</button>
+            </form>
+          </li>
         </ul> -->
       </div>
     {{/each}}
   </div>
+</div>
 
+<div class="row">
+  <div class="col-md-2"></div>
+  <div class="col-md-10">
+    <a href="/instructors"><h3>Instructors List</h3></a>
+    <a href="/register"><h3>Registration</h3></a>
+  </div>
 </div>

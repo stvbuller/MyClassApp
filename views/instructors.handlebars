@@ -1,17 +1,72 @@
 <div class="row">
   <div class="col-md-2"></div>
   <div class="col-md-8">
-    <h1>Registered Instructors</h1>
+    <h1>Instructors</h1>
     {{#each instructor}}
       <div>
-        <h3>{{firstname}} {{lastname}}</h3>
-        <!-- <ul>
-          {{#each AlterEgos}}
-            <li>{{ superhero }}</li>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>First name</th>
+              <th>Last name</th>
+              <th>Instructor</th>
+              <th>Id</th>
+            <tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                {{firstname}}
+              </td>
+              <td>
+                {{lastname}}
+              </td>
+              <td>
+                {{teacher}}
+              </td>
+              <td>
+                {{ id }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+          <ul>
+            <li><h4>Students registered with this instructor</h4></li>
+          {{#each Students}}
+            <li><h5>{{ firstname }} {{ lastname }}<h5></li>
           {{/each}}
-        </ul> -->
+        </ul>
       </div>
     {{/each}}
   </div>
+  <div class="col-md-2"></div>
+</div>
 
+<div class="row">
+  <div class="col-md-2"></div>
+  <div class="col-md-4">
+    <h3>Create an Instructor</h3>
+    <form method="POST" action="/createinstructors">
+      <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Instructor's first name" name="firstname">
+      <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Instructor's last name" name="lastname">
+      <button type="submit" class="btn btn-default">Add Instructor</button>
+    </form>
+  </div>
+  <div class="col-md-4">
+    <h3>Create a TA</h3>
+    <form method="POST" action="/createta">
+      <input type="text" class="form-control" id="exampleInputEmail1" placeholder="TA's first name" name="firstname">
+      <input type="text" class="form-control" id="exampleInputEmail1" placeholder="TA's last name" name="lastname">
+      <button type="submit" class="btn btn-default">Add TA</button>
+    </form>
+  </div>
+  <div class="col-md-2"></div>
+</div>
+
+<div class="row">
+  <div class="col-md-2"></div>
+  <div class="col-md-10">
+    <a href="/students"><h3>Students List</h3></a>
+    <a href="/register"><h3>Registration</h3></a>
+  </div>
 </div>
