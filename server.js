@@ -206,8 +206,14 @@ app.post('/createta', function(req, res) {
 });
 
 
-sequelize.sync();
-
-app.listen(PORT, function(){
-  console.log('Listening on %s', PORT)
+// database connection via sequelize
+sequelize.sync().then(function() {
+  app.listen(PORT, function() {
+      console.log("Listening on:" + PORT)
+  });
 });
+
+//sequelize.sync();
+// app.listen(PORT, function(){
+//   console.log('Listening on %s', PORT)
+// });
