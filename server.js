@@ -195,6 +195,7 @@ app.post('/login', function(req, res) {
   });
 });
 
+//creates a teacher
 app.post('/createinstructors', function(req, res) {
   Instructor.create({
     firstname: req.body.firstname,
@@ -205,6 +206,7 @@ app.post('/createinstructors', function(req, res) {
   });
 });
 
+//creates a ta
 app.post('/createta', function(req, res) {
   Instructor.create({
     firstname: req.body.firstname,
@@ -225,7 +227,3 @@ sequelize.sync().then(function() {
   });
 });
 
-//sequelize.sync();
-// app.listen(PORT, function(){
-//   console.log('Listening on %s', PORT)
-// });
