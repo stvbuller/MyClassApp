@@ -1,14 +1,21 @@
 var express = require('express')
 var app = express()
-var exphbs  = require('express-handlebars');
+var exphbs = require('express-handlebars');
 var bodyParser = require('body-parser')
 var session = require('express-session')
 app.use(bodyParser.urlencoded({extended: false}));
+//setup express-handlebars
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
+
 var mysql = require('mysql');
 var Sequelize = require('sequelize');
 var bcrypt = require('bcryptjs');
+
+// load dependency for connect-session-sequelize
+var cookieParser = require('cookie-parser')
+// initalize sequelize with session store
+var SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 var sequelize = new Sequelize('myclassapp_db', 'root');
 
@@ -20,7 +27,10 @@ app.use(session({
     maxAge: 1000 * 600
   },
   saveUninitialized: true,
-  resave: false
+  resave: false,
+  store: new SequelizeStore({         //used for connect-session-sequelize
+    db: sequelize
+  }),
 }));
 
 //the Student model
@@ -64,7 +74,8 @@ var Student = sequelize.define('Student', {
   }
 });
 
-//the Instructor model
+//the Instructor model, uses the boolean "teacher" to
+//designate teacher or ta
 var Instructor = sequelize.define('Instructor', {
   firstname: {
     type: Sequelize.STRING,
@@ -155,6 +166,8 @@ app.get('/instructors', function (req, res) {
     });
 });
 
+//** this needs to be changed so that instructors
+//are registered as well as students
 app.post('/register', function(req, res) {
   Student.create(req.body).then(function(user) {
     req.session.authenticated = user;
@@ -164,6 +177,8 @@ app.post('/register', function(req, res) {
   });
 });
 
+//** this needs to be changed so that the passwords
+//of instructors are checked as well as students
 app.post('/login', function(req, res) {
   var email = req.body.email;
   var password = req.body.password;
@@ -205,6 +220,8 @@ app.post('/createta', function(req, res) {
   });
 });
 
+//creates the db for connect-session-sequelize
+//SequelizeStore.sync();
 
 // database connection via sequelize
 sequelize.sync().then(function() {
