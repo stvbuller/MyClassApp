@@ -19,7 +19,7 @@ var SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 var sequelize = new Sequelize('myclassapp_db', 'root');
 
-var PORT = process.env.NODE_ENV || 8090;
+var PORT = process.env.PORT || 8090;
 
 app.use(session({
   secret: 'abcde',
