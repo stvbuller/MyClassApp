@@ -172,9 +172,18 @@ app.post('/register', function(req, res) {
   });
 });
 
+app.post('/registerInstructor', function(req, res) {
+  Instructor.create(req.body).then(function(user) {
+    req.session.authenticated = user;
+    res.redirect('/login');
+  }).catch(function(err) {
+    res.redirect('/register?msg=' + err.message);
+  });
+});
+
 //** this needs to be changed so that the passwords
 //of instructors are checked as well as students
-app.post('/login', function(req, res) {
+app.post('/loginStudent', function(req, res) {
   var email = req.body.email;
   var password = req.body.password;
 
@@ -195,16 +204,41 @@ app.post('/login', function(req, res) {
   });
 });
 
-//creates a teacher
-app.post('/createinstructors', function(req, res) {
-  Instructor.create({
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    teacher: true
-  }).then(function() {
-    res.redirect('/instructors');
+//** this needs to be changed so that the passwords
+//of instructors are checked as well as students
+app.post('/loginInstructor', function(req, res) {
+  var email = req.body.email;
+  var password = req.body.password;
+
+  Instructor.findOne({
+    where: {
+      email: email,
+      password: password
+    }
+  }).then(function(user) {
+    if(user) {
+      req.session.authenticated = user;
+      res.redirect('/instructors');
+    } else {
+      res.redirect('/?msg=you are not logged in');
+    }
+  }).catch(function(err) {
+    throw err;
   });
 });
+
+
+
+//creates a teacher
+// app.post('/createinstructors', function(req, res) {
+//   Instructor.create({
+//     firstname: req.body.firstname,
+//     lastname: req.body.lastname,
+//     teacher: true
+//   }).then(function() {
+//     res.redirect('/instructors');
+//   });
+// });
 
 //creates a ta
 app.post('/createta', function(req, res) {
