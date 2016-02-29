@@ -161,8 +161,7 @@ app.get('/instructors', function (req, res) {
     });
 });
 
-//** this needs to be changed so that instructors
-//are registered as well as students
+//registeres students
 app.post('/register', function(req, res) {
   Student.create(req.body).then(function(user) {
     req.session.authenticated = user;
@@ -172,6 +171,7 @@ app.post('/register', function(req, res) {
   });
 });
 
+//registers instructors
 app.post('/registerInstructor', function(req, res) {
   Instructor.create(req.body).then(function(user) {
     req.session.authenticated = user;
@@ -181,8 +181,7 @@ app.post('/registerInstructor', function(req, res) {
   });
 });
 
-//** this needs to be changed so that the passwords
-//of instructors are checked as well as students
+//student login
 app.post('/loginStudent', function(req, res) {
   var email = req.body.email;
   var password = req.body.password;
@@ -204,8 +203,7 @@ app.post('/loginStudent', function(req, res) {
   });
 });
 
-//** this needs to be changed so that the passwords
-//of instructors are checked as well as students
+//instructor login
 app.post('/loginInstructor', function(req, res) {
   var email = req.body.email;
   var password = req.body.password;
@@ -227,18 +225,6 @@ app.post('/loginInstructor', function(req, res) {
   });
 });
 
-
-
-//creates a teacher
-// app.post('/createinstructors', function(req, res) {
-//   Instructor.create({
-//     firstname: req.body.firstname,
-//     lastname: req.body.lastname,
-//     teacher: true
-//   }).then(function() {
-//     res.redirect('/instructors');
-//   });
-// });
 
 //creates a ta
 app.post('/createta', function(req, res) {
