@@ -150,7 +150,7 @@ var Instructor = sequelize.define('Instructor', {
       is: ["^[a-z]+$",'i']
     }
   },
-  email: {
+  username: {
     type: Sequelize.STRING,
     allowNull: true,
     unique: true
@@ -266,12 +266,12 @@ app.post('/loginStudent', passport.authenticate('local', {
 
 //instructor login
 app.post('/loginInstructor', function(req, res) {
-  var email = req.body.email;
+  var username = req.body.username;
   var password = req.body.password;
 
   Instructor.findOne({
     where: {
-      email: email,
+      username: username,
       password: password
     }
   }).then(function(user) {
