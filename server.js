@@ -21,6 +21,10 @@ var sequelize = new Sequelize('myclassapp_db', 'root');
 
 var PORT = process.env.PORT || 8090;
 
+//requiring passport last
+var passport = require('passport');
+var passportLocal = require('passport-local');
+//middleware init
 app.use(session({
   secret: 'abcde',
   cookie: {
@@ -32,6 +36,47 @@ app.use(session({
     db: sequelize
   }),
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+//passport use methed as callback when being authenticated
+passport.use(new passportLocal.Strategy(function(username, password, done) {
+  //check password in db
+  Student.findOne({
+    where: {
+      username: username
+    }
+  }).then(function(user) {
+    console.log("WHAT IS", user);
+    //check password against hash
+    if(user) {
+      bcrypt.compare(password, user.dataValues.password, function(err, bcryptUser) {
+        if (bcryptUser) {
+          //if password is correct authenticate the user with cookie
+          done(null, user);
+        }
+        else {
+          done(null, null);
+        }
+      });
+    }
+    else {
+      done(null, null);
+    }
+  });
+}));
+
+//change the object used to authenticate to a smaller token, and protects the server from attacks
+passport.serializeUser(function(user, done) {
+  console.log('in serializeUser', user);
+  done(null, user);
+});
+passport.deserializeUser(function(user, done) {
+  console.log('in deserializeUser', user);
+  done(null, user);
+});
 
 //the Student model
 var Student = sequelize.define('Student', {
@@ -57,7 +102,7 @@ var Student = sequelize.define('Student', {
       is: ["^[a-z]+$",'i']
     }
   },
-  email: {
+  username: {
     type: Sequelize.STRING,
     allowNull: false,
     unique: true
@@ -72,6 +117,12 @@ var Student = sequelize.define('Student', {
       }
     }
   }
+}, {
+    hooks: {
+      beforeCreate: function(input){
+        input.password = bcrypt.hashSync(input.password, 10);
+      }
+    }
 });
 
 //the Instructor model, uses the boolean "teacher" to
@@ -182,26 +233,36 @@ app.post('/registerInstructor', function(req, res) {
 });
 
 //student login
-app.post('/loginStudent', function(req, res) {
-  var email = req.body.email;
-  var password = req.body.password;
+// app.post('/loginStudent', function(req, res) {
+//   var email = req.body.email;
+//   var password = req.body.password;
 
-  Student.findOne({
-    where: {
-      email: email,
-      password: password
-    }
-  }).then(function(user) {
-    if(user) {
-      req.session.authenticated = user;
-      res.redirect('/students');
-    } else {
-      res.redirect('/?msg=you are not logged in');
-    }
-  }).catch(function(err) {
-    throw err;
-  });
-});
+//   Student.findOne({
+//     where: {
+//       email: email,
+//       password: password
+//     }
+//   }).then(function(user) {
+//     if(user) {
+//       req.session.authenticated = user;
+//       res.redirect('/students');
+//     } else {
+//       res.redirect('/?msg=you are not logged in');
+//     }
+//   }).catch(function(err) {
+//     throw err;
+//   });
+// });
+//check login with db
+app.post('/loginStudent', passport.authenticate('local', {
+  successRedirect: '/students',
+  failureRedirect: '/?msg=you are not logged in'
+}));
+// app.post('/check', function(req, res) {
+//   res.send("YOU ARE HERE");
+// });
+
+
 
 //instructor login
 app.post('/loginInstructor', function(req, res) {
@@ -246,4 +307,6 @@ sequelize.sync().then(function() {
       console.log("Listening on:" + PORT)
   });
 });
+
+
 
