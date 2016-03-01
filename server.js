@@ -1,10 +1,13 @@
+//express setup
 var express = require('express')
 var app = express()
-var exphbs = require('express-handlebars');
+var PORT = process.env.PORT || 8090;
+
 var bodyParser = require('body-parser')
 var session = require('express-session')
 app.use(bodyParser.urlencoded({extended: false}));
 //setup express-handlebars
+var exphbs = require('express-handlebars');
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
@@ -19,7 +22,6 @@ var SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 var sequelize = new Sequelize('myclassapp_db', 'root');
 
-var PORT = process.env.PORT || 8090;
 
 //requiring passport last
 var passport = require('passport');
@@ -169,6 +171,12 @@ var Instructor = sequelize.define('Instructor', {
     type: Sequelize.BOOLEAN,
     allowNull: true
   }
+}, {
+    hooks: {
+      beforeCreate: function(input){
+        input.password = bcrypt.hashSync(input.password, 10);
+      }
+    }
 });
 
 //one to many relationship for the instructor to students
@@ -212,7 +220,7 @@ app.get('/instructors', function (req, res) {
     });
 });
 
-//registeres students
+//registers students
 app.post('/register', function(req, res) {
   Student.create(req.body).then(function(user) {
     req.session.authenticated = user;
@@ -232,7 +240,7 @@ app.post('/registerInstructor', function(req, res) {
   });
 });
 
-//student login
+//student login without hash
 // app.post('/loginStudent', function(req, res) {
 //   var email = req.body.email;
 //   var password = req.body.password;
@@ -253,18 +261,37 @@ app.post('/registerInstructor', function(req, res) {
 //     throw err;
 //   });
 // });
-//check login with db
+
+//check login with db using passport
 app.post('/loginStudent', passport.authenticate('local', {
   successRedirect: '/students',
   failureRedirect: '/?msg=you are not logged in'
 }));
-// app.post('/check', function(req, res) {
-//   res.send("YOU ARE HERE");
+
+
+//instructor login without hash
+// app.post('/loginInstructor', function(req, res) {
+//   var username = req.body.username;
+//   var password = req.body.password;
+
+//   Instructor.findOne({
+//     where: {
+//       username: username,
+//       password: password
+//     }
+//   }).then(function(user) {
+//     if(user) {
+//       req.session.authenticated = user;
+//       res.redirect('/instructors');
+//     } else {
+//       res.redirect('/?msg=you are not logged in');
+//     }
+//   }).catch(function(err) {
+//     throw err;
+//   });
 // });
 
-
-
-//instructor login
+//instructor login with hash
 app.post('/loginInstructor', function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
@@ -272,31 +299,44 @@ app.post('/loginInstructor', function(req, res) {
   Instructor.findOne({
     where: {
       username: username,
-      password: password
+      //password: password
     }
   }).then(function(user) {
+    console.log("WHAT IS", user);
+    //check password against hash
     if(user) {
-      req.session.authenticated = user;
-      res.redirect('/instructors');
-    } else {
-      res.redirect('/?msg=you are not logged in');
+      bcrypt.compare(password, user.dataValues.password, function(err, bcryptUser) {
+        if (bcryptUser) {
+          req.session.authenticated = user;
+          res.redirect('/instructors');
+          //if password is correct authenticate the user with cookie
+          //done(null, user);
+        }
+        else {
+          res.redirect('/?msg=you are not logged in');
+          //done(null, null);
+        }
+      });
     }
-  }).catch(function(err) {
-    throw err;
+    else {
+      res.redirect('/?msg=you are not logged in');
+      //done(null, null);
+    }
   });
 });
+
 
 
 //creates a ta
-app.post('/createta', function(req, res) {
-  Instructor.create({
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    teacher:  false
-  }).then(function() {
-    res.redirect('/instructors');
-  });
-});
+// app.post('/createta', function(req, res) {
+//   Instructor.create({
+//     firstname: req.body.firstname,
+//     lastname: req.body.lastname,
+//     teacher:  false
+//   }).then(function() {
+//     res.redirect('/instructors');
+//   });
+// });
 
 //creates the db for connect-session-sequelize
 //SequelizeStore.sync();
